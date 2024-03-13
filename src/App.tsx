@@ -1,26 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useRef } from 'react'
+import { Context2D } from 'react-canvas-animate'
+import Renderer from './components/Renderer'
+import { RenderableEntityManager } from './engine/managers'
+import { FillScreen } from './demo/entities'
 
 function App() {
+  const renderManager = useRef<RenderableEntityManager>()
+
+  const init = (context: Context2D) => {
+    const objects = (renderManager.current = new RenderableEntityManager(
+      context
+    ))
+
+    // objects.create(FillScreen, { color: '#111' })
+
+    for (let x = 0; x < 2000; x++) {
+      objects.create(FillScreen, { x: x })
+    }
+  }
+
+  const render = (context: Context2D) => {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height)
+    renderManager.current?.render()
+  }
+
+  const update = (ctx: Context2D, deltaTime: number) => {
+    renderManager.current?.update({ deltaTime })
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <Renderer init={init} render={render} update={update} nogrid fullscreen />
+  )
 }
 
-export default App;
+export default App
